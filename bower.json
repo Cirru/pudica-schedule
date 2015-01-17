@@ -1,0 +1,20 @@
+{
+  "name": "pudica",
+  "version": "0.0.0",
+  "homepage": "https://github.com/Memkits/pudica-schedule",
+  "authors": [
+    "jiyinyiyong <jiyinyiyong@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "requirejs": "~2.1.15",
+    "react": "~0.12.2"
+  }
+}

@@ -1,165 +1,76 @@
 
 gulp = require 'gulp'
-filetree = require 'make-filetree'
-watch = require 'gulp-watch'
-html = require 'gulp-cirru-html'
-reloader = require 'gulp-reloader'
-coffee = require 'gulp-coffee'
-browserify = require 'browserify'
-source = require 'vinyl-source-stream'
-buffer = require 'vinyl-buffer'
-plumber = require 'gulp-plumber'
-rsync = require('rsyncwrapper').rsync
-uglify = require 'gulp-uglify'
-rename = require 'gulp-rename'
-sequence = require 'run-sequence'
-prefixer = require 'gulp-autoprefixer'
-cssmin = require 'gulp-cssmin'
-rimraf = require 'gulp-rimraf'
-transform = require 'vinyl-transform'
-wait = require 'gulp-wait'
 
-project = 'Memkits/pudica-schedule/index.html'
-dev = yes
-libraries = [
-  'react'
-]
+project = 'Memkits/pudica/index.html'
 
-gulp.task 'folder', ->
+gulp.task 'folder', (cb) ->
+  filetree = require 'make-filetree'
   filetree.make '.',
-    coffee:
-      'main.coffee': ''
-    css:
+    'index.cirru': ''
+    source:
+      'main.cirru': ''
       'main.css': ''
-    cirru:
-      'index.cirru': ''
     'README.md': ''
     build: {}
+  cb
 
 gulp.task 'watch', ->
+  plumber = require 'gulp-plumber'
+  script = require 'gulp-cirru-script'
+  watch = require 'gulp-watch'
+  html = require 'gulp-cirru-html'
+  sourcemaps = require 'gulp-sourcemaps'
+  rename = require 'gulp-rename'
+  reloader = require 'gulp-reloader'
   reloader.listen()
 
   gulp
-  .src 'cirru/*'
+  .src 'index.cirru'
   .pipe watch()
   .pipe plumber()
-  .pipe html(data: {dev: yes})
+  .pipe html(data: {})
   .pipe gulp.dest('./')
   .pipe reloader(project)
 
-  watch glob: 'coffee/**/*.coffee', (files) ->
-    files
-    .pipe plumber()
-    .pipe (coffee bare: yes)
-    .pipe (gulp.dest 'build/js/')
-
-  watch glob: 'build/js/**/*.js', (files) ->
-    gulp
-    .src './build/js/main.js'
-    .pipe plumber()
-    .pipe transform (filename) ->
-      b = browserify filename, debug: yes
-      b.external library for library in libraries
-      b.bundle()
-    .pipe gulp.dest('build/')
-    .pipe reloader(project)
-    return files
-
-  watch ['server.coffee', 'src/**/*.coffee'], (files) ->
-    files
-    .pipe wait(800)
-    .pipe reloader(project)
-
-gulp.task 'js', ->
-  b = browserify debug: dev
-  b.add './build/js/main'
-  b.external library for library in libraries
-  b.bundle()
-  .pipe source('main.js')
-  .pipe gulp.dest('build/')
-
-gulp.task 'coffee', ->
   gulp
-  .src 'coffee/**/*.coffee', base: 'coffee/'
-  .pipe (coffee bare: yes)
-  .pipe (gulp.dest 'build/js/')
+  .src('source/**/*.cirru', base: './')
+  .pipe watch()
+  .pipe plumber()
+  .pipe sourcemaps.init()
+  .pipe script()
+  .pipe rename(extname: '.js')
+  .pipe sourcemaps.write('./')
+  .pipe (gulp.dest 'build/')
+  .pipe reloader(project)
+
+gulp.task 'script', ->
+  script = require 'gulp-cirru-script'
+  sourcemaps = require 'gulp-sourcemaps'
+  rename = require 'gulp-rename'
+
+  gulp
+  .src 'source/**/*.cirru', base: 'source/'
+  .pipe sourcemaps.init(debug: yes)
+  .pipe script()
+  .pipe rename(extname: '.js')
+  .pipe sourcemaps.write('./')
+  .pipe (gulp.dest 'build/')
 
 gulp.task 'html', ->
+  html = require 'gulp-cirru-html'
   gulp
-  .src 'cirru/*'
-  .pipe html(data: {dev: dev})
+  .src 'index.cirru'
+  .pipe html(data: {})
   .pipe gulp.dest('.')
 
-gulp.task 'jsmin', ->
-  b = browserify debug: no
-  b.add './build/js/main'
-  b.external library for library in libraries
-  b.bundle()
-  .pipe source('main.min.js')
-  .pipe buffer()
-  .pipe uglify()
-  .pipe gulp.dest('dist/')
+gulp.task 'clean', (cb) ->
+  del = require 'del'
+  del ['build/'], cb
 
-gulp.task 'vendor', ->
-  b = browserify debug: no
-  b.require library for library in libraries
-  b.bundle()
-  .pipe source('vendor.min.js')
-  .pipe buffer()
-  .pipe uglify()
-  .pipe gulp.dest('dist/')
-
-gulp.task 'prefixer', ->
-  gulp
-  .src 'css/**/*.css', base: 'css/'
-  .pipe prefixer()
-  .pipe gulp.dest('build/css/')
-
-gulp.task 'cssmin', ->
-  gulp
-  .src 'build/css/main.css'
-  .pipe cssmin(relativeTo: 'css/')
-  .pipe rename(suffix: '.min')
-  .pipe gulp.dest('dist/')
-
-gulp.task 'clean', ->
-  gulp
-  .src ['build/', 'dist/']
-  .pipe rimraf()
+gulp.task 'start', (cb) ->
+  sequence = require 'run-sequence'
+  sequence 'clean', 'dev', cb
 
 gulp.task 'dev', ->
-  sequence 'clean', ['html', 'coffee', 'vendor'], 'js'
-
-gulp.task 'build', ->
-  dev = no
-  sequence 'clean',
-    ['coffee', 'html'], ['jsmin', 'vendor'],
-    'prefixer', 'cssmin'
-
-gulp.task 'rsync', ->
-  rsync
-    ssh: yes
-    src: '.'
-    recursive: true
-    args: ['--verbose']
-    dest: "tiye:~/repo/pudica-schedule"
-    deleteAll: yes
-    exclude: [
-      'bower_components/'
-      'node_modules/'
-      'cirru/'
-      '.gitignore'
-      '.npmignore'
-      'README.md'
-      'coffee/'
-      'css/'
-      'build/'
-      'gulpfile.coffee'
-      '*.json'
-    ]
-  , (error, stdout, stderr, cmd) ->
-    if error? then throw error
-    if stderr?
-      console.error stderr
-    else
-      console.log cmd
+  sequence = require 'run-sequence'
+  sequence ['html', 'script']
