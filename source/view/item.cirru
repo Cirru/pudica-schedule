@@ -31,10 +31,10 @@ define $ \ (require exports module)
       event.preventDefault
       if event.shiftKey
         model.before @props.item.id
-        model.aflter @props.item.id
+        model.after @props.item.id
 
     :leaveTask $ \ (event)
-      = text (eventc.currentTarget.value.trimLeft)
+      = text (event.currentTarget.value.trimLeft)
       if (is text.length 0)
         model.remove @props.item.id
 
@@ -62,11 +62,11 @@ define $ \ (require exports module)
       = itemClass $ if isDragging ":item dragging" :item
 
       o.div
-        object (:dragging true) (:className itemClass)
+        object (:draggable true) (:className itemClass)
           :onDragStart @dragItem
           :onDragEnd @releaseDrag
           :onDragEnter @onDragEnter
-        o.span (object (:className :text) (:value @props.item.text))
+        o.span (object (:className :toggler) (:onClick @toggle)) ":✓"
         o.input
           object (:ref :input) (:className :text)
             :value @props.item.text

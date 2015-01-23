@@ -17,7 +17,7 @@ define $ \ (require exports module)
       = item $ object
         :id (uid.make)
         :text :
-        :done :false
+        :done false
       schedule.push item
       this.emit
 
@@ -73,7 +73,8 @@ define $ \ (require exports module)
 
     :toggle $ lambda (id)
       = itemIndex $ this.locateById id
-      = item.done $ not itemIndex
+      = item $ . schedule itemIndex
+      = item.done $ not item.done
       this.emit
 
     :clear $ lambda ()

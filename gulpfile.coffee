@@ -1,7 +1,7 @@
 
 gulp = require 'gulp'
 
-project = 'Memkits/pudica/index.html'
+project = 'Cirru/pudica-schedule/index.html'
 
 gulp.task 'folder', (cb) ->
   filetree = require 'make-filetree'
@@ -33,11 +33,11 @@ gulp.task 'watch', ->
   .pipe reloader(project)
 
   gulp
-  .src('source/**/*.cirru', base: './')
+  .src 'source/**/*.cirru', base: 'source/'
   .pipe watch()
   .pipe plumber()
   .pipe sourcemaps.init()
-  .pipe script()
+  .pipe script(dest: '../build/')
   .pipe rename(extname: '.js')
   .pipe sourcemaps.write('./')
   .pipe (gulp.dest 'build/')
@@ -51,7 +51,7 @@ gulp.task 'script', ->
   gulp
   .src 'source/**/*.cirru', base: 'source/'
   .pipe sourcemaps.init(debug: yes)
-  .pipe script()
+  .pipe script(dest: '../build/')
   .pipe rename(extname: '.js')
   .pipe sourcemaps.write('./')
   .pipe (gulp.dest 'build/')

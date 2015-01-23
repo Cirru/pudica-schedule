@@ -43,7 +43,7 @@ define $ \ (require exports module)
       = isListRich $ > @state.schedule.length 0
       = itemsList @state.schedule
       = itemsList $ itemsList.filter $ \ (item) (not item.done)
-      = itemsList $ itemsList.map $ \ (item)
+      = itemsList $ itemsList.map $ \= (item)
         = dragging $ is @state.dragging item.id
         Item $ object
           :key item.id
@@ -51,7 +51,7 @@ define $ \ (require exports module)
           :isDragging dragging
           :onDragStart @dragItem
           :onDragEnd @releaseDrag
-          :onDragStart @dragItem
+          :onDragEnter @swapItems
 
       = doneList @state.schedule
       = doneList $ doneList.filter $ \ (item) item.done
@@ -63,13 +63,13 @@ define $ \ (require exports module)
           o.div (object (:id :items-all))
             if (> itemsList.length 0)
               o.div (object (:className ":board is-active"))
-                o.div (object (:className title)) ":To be done:"
+                o.div (object (:className :title)) ":To be done:"
                 , itemsList
             if (> doneList.length 0)
               o.div (object (:className ":board is-done"))
                 o.div (object (:className :title)) ":Already finished:"
                 , doneList
-          o.div (object (:id clear))
+          o.div (object (:id :clear))
             o.div (object (:className :trigger) (:onClick @clearTask)) ":⌫"
         do $ o.div (object (:id :paper))
           o.div (object (:id :start-guide)) ":Press Enter to start..."

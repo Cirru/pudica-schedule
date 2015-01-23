@@ -1,12 +1,12 @@
 
 define $ \ (require exports module)
 
-  = date $ . (new Date) :getTime
   = count 0
 
   = exports.make $ \ ()
+    = date $ new Date
     = count $ + count 1
 
-    ++: :_id- date :- count
+    ++: :_id- (date.getTime) :- count
 
   return exports
